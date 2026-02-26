@@ -1,46 +1,67 @@
 #pragma once
-
 #include <windows.h>
+#include <vector>
 
-#ifdef UI_TOGGLE_DLL_EXPORTS
-#define UI_TOGGLE_API __declspec(dllexport)
-#else
-#define UI_TOGGLE_API __declspec(dllimport)
-#endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-typedef struct UIToggleHandleTag* UIToggleHandle;
-
-typedef enum UIToggleState
+namespace UI
 {
-    UI_TOGGLE_STATE_OFF = 0,
-    UI_TOGGLE_STATE_ON = 1
-} UIToggleState;
+    struct TileRect
+    {
+        int x, y, w, h;
+    };
 
-typedef struct UIToggleCreateParams
-{
-    HWND parent;
-    int x;
-    int y;
-    int width;
-    int height;
-    int control_id;
-    int radio_group;
-} UIToggleCreateParams;
+    struct ImageAtlas
+    {
+        int width  = 0;
+        int height = 0;
 
-UI_TOGGLE_API BOOL UIToggle_RegisterClass(HINSTANCE instance);
-UI_TOGGLE_API UIToggleHandle UIToggle_Create(const UIToggleCreateParams* params);
-UI_TOGGLE_API void UIToggle_Destroy(UIToggleHandle handle);
+        std::vector<unsigned char> pixels;
+        std::vector<TileRect> tiles;
+    };
 
-UI_TOGGLE_API BOOL UIToggle_SetChecked(UIToggleHandle handle, BOOL checked, BOOL notify_parent);
-UI_TOGGLE_API BOOL UIToggle_GetChecked(UIToggleHandle handle, BOOL* checked);
-UI_TOGGLE_API BOOL UIToggle_SetSwitchStyle(UIToggleHandle handle, int style_index);
-UI_TOGGLE_API BOOL UIToggle_SetBodyStyle(UIToggleHandle handle, int style_index);
-UI_TOGGLE_API BOOL UIToggle_GetWindow(UIToggleHandle handle, HWND* out_window);
+    enum class ToggleState
+    {
+        Off = 0,
+        On  = 1
+    };
 
-#ifdef __cplusplus
+    class Toggle
+    {
+    public:
+        static void Register(HINSTANCE);
+
+        HWND Create(
+                HWND parent,
+                int x, int y, int w, int h,
+                int id,
+                int radioGroup = -1
+        );
+
+        // Logic
+        bool IsChecked() const;
+        void SetChecked(bool value, bool notify = true);
+
+        // 🔥 STYLE CONTROL (NEW)
+        void SetSwitchStyle(int index);  // 0–5
+        void SetBodyStyle(int index);    // 0–9
+
+    private:
+        static LRESULT CALLBACK WindowProc(HWND, UINT, WPARAM, LPARAM);
+
+        void OnPaint();
+        void OnClick();
+        void AnimateStep();
+
+        HWND m_hwnd = nullptr;
+
+        ToggleState m_state = ToggleState::Off;
+
+        int m_knobOffset   = 0;
+        int m_targetOffset = 0;
+        int m_radioGroup   = -1;
+
+        // 🔥 STYLE MEMBERS (NEW)
+        int m_switchStyle = 0; // 6 switch tiles
+        int m_bodyStyle   = 0; // 10 background tiles
+    };
 }
-#endif
