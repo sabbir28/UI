@@ -1,0 +1,4 @@
+D:/Progect/UI/cmake-build-debug/CMakeFiles/UI.dir
+D:/Progect/UI/cmake-build-debug/CMakeFiles/copy_assets.dir
+D:/Progect/UI/cmake-build-debug/CMakeFiles/edit_cache.dir
+D:/Progect/UI/cmake-build-debug/CMakeFiles/rebuild_cache.dir

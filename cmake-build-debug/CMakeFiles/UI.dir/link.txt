@@ -1,0 +1,3 @@
+"C:\Program Files\JetBrains\CLion 2020.3.4\bin\cmake\win\bin\cmake.exe" -E rm -f CMakeFiles\UI.dir/objects.a
+D:\Program\mingw64\bin\ar.exe cr CMakeFiles\UI.dir/objects.a @CMakeFiles\UI.dir\objects1.rsp
+D:\Program\mingw64\bin\g++.exe -g   -Wl,--whole-archive CMakeFiles\UI.dir/objects.a -Wl,--no-whole-archive  -o bin\UI.exe -Wl,--out-implib,bin\libUI.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\UI.dir\linklibs.rsp
