@@ -32,6 +32,11 @@ set_target_properties(UIToggle UIToggleSample PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_BIN_DIR}
 )
 
+# Keep a predictable DLL name for runtime loading on MinGW (no "lib" prefix).
+set_target_properties(UIToggle PROPERTIES
+    PREFIX ""
+)
+
 add_custom_target(copy_assets ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_SOURCE_DIR}/lib/UI/assets
