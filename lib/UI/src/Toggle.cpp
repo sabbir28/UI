@@ -66,6 +66,7 @@ std::wstring GetModuleDirectory(HINSTANCE instance)
     return fullPath.substr(0, pos);
 }
 
+// Resolves the runtime assets directory relative to the DLL location.
 std::wstring GetAssetsDirectory()
 {
     return GetModuleDirectory(g_moduleInstance) + L"\\assets\\Troggle";
@@ -172,6 +173,7 @@ ImageAtlas LoadAtlas(const std::wstring& path, int columns, int rows)
     return atlas;
 }
 
+// Lazy-load texture atlases once and keep them in memory for control instances.
 bool EnsureAtlasesLoaded()
 {
     if (!g_bodyAtlas.pixels.empty() && !g_switchAtlas.pixels.empty())
@@ -194,6 +196,7 @@ bool EnsureAtlasesLoaded()
     }
 }
 
+// Draws one atlas tile with alpha blending into the destination rectangle.
 void DrawTile(HDC hdc, const RECT& destination, const ImageAtlas& atlas, int tileIndex)
 {
     if (tileIndex < 0 || tileIndex >= static_cast<int>(atlas.tiles.size()))
@@ -298,6 +301,7 @@ struct ToggleControl
         }
     }
 
+    // Updates state, starts animation, and optionally notifies the parent window.
     bool SetChecked(BOOL checked, BOOL notifyParent)
     {
         if (!EnsureAtlasesLoaded() || window == nullptr)
@@ -472,6 +476,7 @@ extern "C" BOOL UIToggle_GetChecked(UIToggleHandle handle, BOOL* checked)
     return TRUE;
 }
 
+// Applies a clamped switch-knob style index from the loaded switch atlas.
 extern "C" BOOL UIToggle_SetSwitchStyle(UIToggleHandle handle, int style_index)
 {
     if (!IsValidHandle(handle) || !EnsureAtlasesLoaded())
@@ -486,6 +491,7 @@ extern "C" BOOL UIToggle_SetSwitchStyle(UIToggleHandle handle, int style_index)
     return TRUE;
 }
 
+// Applies a clamped body style index from the loaded body atlas.
 extern "C" BOOL UIToggle_SetBodyStyle(UIToggleHandle handle, int style_index)
 {
     if (!IsValidHandle(handle) || !EnsureAtlasesLoaded())

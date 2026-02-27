@@ -4,6 +4,7 @@
 
 #include "lib/UI/include/Toggle.h"
 
+// Function-pointer typedefs for the runtime-loaded DLL API.
 typedef BOOL(*RegisterClassFn)(HINSTANCE);
 typedef UIToggleHandle(*CreateFn)(const UIToggleCreateParams*);
 typedef void(*DestroyFn)(UIToggleHandle);
@@ -11,6 +12,7 @@ typedef BOOL(*SetCheckedFn)(UIToggleHandle, BOOL, BOOL);
 typedef BOOL(*GetCheckedFn)(UIToggleHandle, BOOL*);
 typedef BOOL(*SetStyleFn)(UIToggleHandle, int);
 
+// Keeps all DLL handles and resolved entry points in one place.
 struct ToggleApi
 {
     HMODULE module = nullptr;
@@ -26,6 +28,7 @@ struct ToggleApi
 ToggleApi g_api;
 UIToggleHandle g_toggle = nullptr;
 
+// Loads UIToggle.dll and resolves the expected exported functions.
 bool LoadToggleApi(ToggleApi* api)
 {
     api->module = LoadLibraryW(L"UIToggle.dll");
@@ -54,12 +57,14 @@ void UnloadToggleApi(ToggleApi* api)
     *api = {};
 }
 
+// Host window message handler for creating and reacting to the toggle.
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg)
     {
         case WM_CREATE:
         {
+            // Create one toggle control as a child of the main window.
             UIToggleCreateParams params{};
             params.parent = hwnd;
             params.x = 50;
@@ -72,6 +77,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             g_toggle = g_api.create(&params);
             if (g_toggle != nullptr)
             {
+                // Pick a non-default visual style from the atlas.
                 g_api.setSwitchStyle(g_toggle, 2);
                 g_api.setBodyStyle(g_toggle, 2);
             }
@@ -79,6 +85,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
 
         case WM_COMMAND:
+            // The toggle emits BN_CLICKED via WM_COMMAND when state changes.
             if (LOWORD(wParam) == 1001 && g_toggle != nullptr)
             {
                 BOOL checked = FALSE;
@@ -90,6 +97,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             return 0;
 
         case WM_DESTROY:
+            // Explicitly release the control handle before the app exits.
             if (g_toggle != nullptr)
             {
                 g_api.destroy(g_toggle);
